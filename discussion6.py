@@ -1,5 +1,6 @@
 import unittest
 import os
+import csv
 
 
 def load_csv(f):
@@ -14,10 +15,26 @@ def load_csv(f):
     
     Note: Don't strip or otherwise modify strings. Don't change datatypes from strings. 
     '''
-
+    d = {}
+    
     base_path = os.path.abspath(os.path.dirname(__file__))
     full_path = os.path.join(base_path, f)
-    # use this 'full_path' variable as the file that you open
+    
+    with open(full_path) as file:
+        csvreader = csv.reader(file)
+        headers = next(csvreader)  
+        years = headers[1:]  
+        
+        for row in csvreader:
+            month = row[0]
+            values = row[1:]
+            for i, value in enumerate(values):
+                year = years[i]
+                if year not in d:
+                    d[year] = {}
+                d[year][month] = value
+                
+    return d
 
 def get_annual_max(d):
     '''
@@ -31,7 +48,18 @@ def get_annual_max(d):
     Note: Don't strip or otherwise modify strings. Do not change datatypes except where necessary.
         You'll have to change vals to int to compare them. 
     '''
-    pass
+    result = []
+    
+    for year in d:
+        max_val = 0
+        max_month = ''
+        for month, val in d[year].items():
+            if int(val) > max_val:
+                max_val = int(val)
+                max_month = month
+        result.append((year, max_month, max_val))
+        
+    return result
 
 def get_month_avg(d):
     '''
@@ -45,7 +73,18 @@ def get_month_avg(d):
     Note: Don't strip or otherwise modify strings. Do not change datatypes except where necessary. 
         You'll have to make the vals int or float here and round the avg to pass tests.
     '''
-    pass
+    result = {}
+    
+    for year in d:
+        total = 0
+        count = 0
+        for val in d[year].values():
+            total += int(val)
+            count += 1
+        avg = round(total / count)
+        result[year] = avg
+        
+    return result
 
 class dis7_test(unittest.TestCase):
     '''
